@@ -3,7 +3,7 @@ let settings = {
     'canvas': {
         'rows': 15,
         'cols': 15,
-        'bombs': 20,
+        'bombs': 60,
         'cw': 50,
         'ch': 50,
     },
@@ -22,6 +22,16 @@ let layout = function (settings) {
         'bombs': settings.bombs,
         'cw': settings.cw,
         'ch': settings.ch,
+        'nearbyOffset': [
+            [-1,-1],
+            [-1,0],
+            [-1,+1],
+            [0,-1],
+            [0,+1],
+            [+1,-1],
+            [+1,0],
+            [+1,+1],
+        ],
         'canvasWidth': settings.cols * settings.cw,
         'canvasHeight': settings.rows * settings.ch,
         'canvas': document.getElementById('canvas'),
@@ -81,25 +91,20 @@ let layout = function (settings) {
             }
         }
 
+
         /**
          * Рассчет значений соседних от мин ячеек
          */
         for (let i = 0; i < this.settings.rows; i++) {
             for (let j = 0; j < this.settings.cols; j++) {
                 if (this._data[i][j].value === 9) {
-                    this.riseNearbyCell(i - 1, j - 1);
-                    this.riseNearbyCell(i - 1, j);
-                    this.riseNearbyCell(i - 1, j + 1);
-                    this.riseNearbyCell(i, j - 1);
-                    this.riseNearbyCell(i, j + 1);
-                    this.riseNearbyCell(i + 1, j - 1);
-                    this.riseNearbyCell(i + 1, j);
-                    this.riseNearbyCell(i + 1, j + 1);
+                    for(let z = 0; z < this.settings.nearbyOffset.length; z++){
+                        let offset = this.settings.nearbyOffset;
+                        this.riseNearbyCell(i + offset[z][0],j + offset[z][1]);
+                    }
                 }
             }
         }
-        console.log(this._data);
-
     };
 
     /**
@@ -115,6 +120,26 @@ let layout = function (settings) {
         }
     };
 
+    // this.showEmptyCells = (cell) => {
+    //     let offset = this.settings.nearbyOffset;
+    //     for(let i = 0; i < offset.length; i++){
+    //         // if ( >= 0 && row < this.settings.rows && col >= 0 && col < this.settings.cols) {
+    //         //     if (this._data[row][col].value !== 9) {
+    //         //         this._data[row][col].value++;
+    //         //     }
+    //         // }
+    //         this.riseNearbyCell(i + offset[z][0],j + offset[z][1]);
+    //     }
+    //     this._data[cell.row][cell.col].status = this._data[cell.row][cell.col].value;
+    // };
+    //
+    // this.showEmptyCell = (cell) => {
+    //     if(cell.status !== 0 && cell.row >= 0 && cell.row < this.settings.rows && cell.col >= 0 && cell.col < this.settings.cols){
+    //         this._data[cell.row][cell.col].status = this._data[cell.row][cell.col].value;
+    //         this.showEmptyCell()
+    //     }
+    // };
+
     /**
      * Отрисовка канваса
      */
@@ -127,18 +152,7 @@ let layout = function (settings) {
             this.settings.canvasImage.onload = () => {
                 for(let i = 0; i < this.settings.rows; i++){
                     for(let j = 0; j < this.settings.cols; j++){
-                        let cell = this._data[i][j];
-                        ctx.drawImage(
-                            this.settings.canvasImage,
-                            this.settings.sprite[cell.status]['sx'],
-                            this.settings.sprite[cell.status]['sy'],
-                            this.settings.sprite[cell.status]['sWidth'],
-                            this.settings.sprite[cell.status]['sHeight'],
-                            j*this.settings.cw,
-                            i*this.settings.ch,
-                            this.settings.cw,
-                            this.settings.ch
-                        );
+                        this.drawCell( i, j, ctx );
                     }
                 }
             };
@@ -166,7 +180,12 @@ let layout = function (settings) {
     this.leftClick = (cell) => {
        if(this._data[cell.row][cell.col].value === 9){
            alert('BOOM!!');
-       }else{
+       }
+       // else if(this._data[cell.row][cell.col].value === 0){
+       //     this.showEmptyCells(this._data[cell.row][cell.col]);
+       //     this.drawingCanvas();
+       // }
+       else{
            this._data[cell.row][cell.col].status = this._data[cell.row][cell.col].value;
        }
     };
@@ -183,6 +202,26 @@ let layout = function (settings) {
         }
     };
 
+    /**
+     * Перерисовка отдельной ячейки
+     * @param row
+     * @param col
+     * @param ctx
+     */
+    this.drawCell = ( row, col, ctx) => {
+
+        ctx.drawImage(
+            this.settings.canvasImage,
+            this.settings.sprite[this._data[row][col].status]['sx'],
+            this.settings.sprite[this._data[row][col].status]['sy'],
+            this.settings.sprite[this._data[row][col].status]['sWidth'],
+            this.settings.sprite[this._data[row][col].status]['sHeight'],
+            col*this.settings.cw,
+            row*this.settings.ch,
+            this.settings.cw,
+            this.settings.ch
+        );
+    }
 };
 
 /**
@@ -193,7 +232,9 @@ let cellTemplate = function () {
     this.value = 0
 };
 
-
+/**
+ * Инициализация поля
+ */
 window.onload = () => {
     let screen = new layout(settings.canvas);
 
@@ -215,7 +256,8 @@ window.onload = () => {
         } else if (mouseButton === settings.mouse.rightClick) {
             screen.rightClick(cell);
         }
-        screen.drawingCanvas();
+        let ctx = screen.settings.canvas.getContext('2d');
+        screen.drawCell(cell.row, cell.col, ctx );
     };
 };
 
