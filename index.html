@@ -13,7 +13,30 @@
 </head>
 <body>
 <div class="container">
-    <canvas id="canvas" ></canvas>
+    <div class="row">
+        <div class="col text-center">
+            <h1>Сапер</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <input type="number" class="form-control" id="rows" value="15">
+        </div>
+        <div class="col">
+            <input type="number" class="form-control" id="cols" value="15">
+        </div>
+        <div class="col">
+            <input type="number" class="form-control" id="bombs" value="50">
+        </div>
+        <div class="col d-flex justify-content-end">
+            <button type="button" class="btn btn-primary" id="changeOptions">Применить</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col d-flex justify-content-center my-5">
+            <canvas id="canvas"></canvas>
+        </div>
+    </div>
 </div>
 <style>
 

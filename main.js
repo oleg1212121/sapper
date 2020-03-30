@@ -1,9 +1,57 @@
 ;"use strict";
+
+/**
+ * Инициализация поля
+ */
+window.onload = () => {
+    let screen = new layout(settings.canvas);
+
+    screen.generate();
+    screen.drawingCanvas();
+    screen.settings.canvas.oncontextmenu = () => false;
+
+    screen.settings.canvas.onmousedown = (e) => {
+        let targetCoordinates = e.target.getBoundingClientRect(),
+            coordinates = {
+            'x': e.clientX - targetCoordinates.left,
+            'y': e.clientY - targetCoordinates.top,
+            },
+            mouseButton = +e.button,
+            cell = screen.getCellFromCoordinates(coordinates),
+            ctx = screen.settings.canvas.getContext('2d');
+        if (mouseButton === settings.mouse.leftClick) {
+            screen.leftClick(cell);
+        } else if (mouseButton === settings.mouse.rightClick) {
+            screen.rightClick(cell);
+        }
+        screen.drawCell(cell.row, cell.col, ctx );
+    };
+
+    document.getElementById('changeOptions').onclick = (e) => {
+        let rows = +document.getElementById('rows').value;
+        let cols = +document.getElementById('cols').value;
+        let bombs = +document.getElementById('bombs').value;
+
+        if(rows*cols > bombs){
+            screen.changeDefaultOptions({
+                'rows': rows,
+                'cols': cols,
+                'bombs': bombs,
+            });
+            screen.generate();
+            screen.drawingCanvas();
+        }else{
+            alert('Ошибочные данные');
+        }
+    }
+};
+
+
 let settings = {
     'canvas': {
         'rows': 15,
         'cols': 15,
-        'bombs': 60,
+        'bombs': 50,
         'cw': 50,
         'ch': 50,
     },
@@ -12,6 +60,7 @@ let settings = {
         'leftClick': 0,
     }
 };
+
 /**
  * Объект игрового поля
  */
@@ -47,16 +96,31 @@ let layout = function (settings) {
             {'sx': 34, 'sy': 34, 'sWidth': 30, 'sHeight': 30, }, // 6 - 6
             {'sx': 66, 'sy': 34, 'sWidth': 30, 'sHeight': 30, }, // 7 - 7
             {'sx': 98, 'sy': 34, 'sWidth': 30, 'sHeight': 30, }, // 8 - 8
-            {'sx': 66, 'sy': 64, 'sWidth': 27, 'sHeight': 28, }, // 9 - question
-            {'sx': 2, 'sy': 64, 'sWidth': 27, 'sHeight': 28, },  // 10 - flag
-            {'sx': 130, 'sy': 32, 'sWidth': 27, 'sHeight': 28, },// 11 - closed
+            {'sx': 98, 'sy': 64, 'sWidth': 27, 'sHeight': 28, }, // 9 - bomb
+            {'sx': 66, 'sy': 64, 'sWidth': 27, 'sHeight': 28, }, // 10 - question
+            {'sx': 2, 'sy': 64, 'sWidth': 27, 'sHeight': 28, },  // 11 - flag
+            {'sx': 130, 'sy': 32, 'sWidth': 27, 'sHeight': 28, },// 12 - closed
 
             {'sx': 34, 'sy': 64, 'sWidth': 27, 'sHeight': 28, }, // bomb explode
-            {'sx': 98, 'sy': 64, 'sWidth': 27, 'sHeight': 28, }, // bomb
         ],
     };
     this._data = [];
 
+    /**
+     * Изменение набора стандартных настроек
+     * @param options
+     */
+    this.changeDefaultOptions = (options) => {
+        this.settings.rows = options.rows ? options.rows : settings.rows;
+        this.settings.cols = options.cols ? options.cols : settings.cols;
+        this.settings.bombs = options.bombs ? options.bombs : settings.bombs;
+        this.settings.canvasWidth = options.cols * this.settings.cw;
+        this.settings.canvasHeight = options.rows * this.settings.ch;
+    };
+
+    /**
+     * Генерация массива данных
+     */
     this.generate = () => {
 
         /**
@@ -120,25 +184,35 @@ let layout = function (settings) {
         }
     };
 
-    // this.showEmptyCells = (cell) => {
-    //     let offset = this.settings.nearbyOffset;
-    //     for(let i = 0; i < offset.length; i++){
-    //         // if ( >= 0 && row < this.settings.rows && col >= 0 && col < this.settings.cols) {
-    //         //     if (this._data[row][col].value !== 9) {
-    //         //         this._data[row][col].value++;
-    //         //     }
-    //         // }
-    //         this.riseNearbyCell(i + offset[z][0],j + offset[z][1]);
-    //     }
-    //     this._data[cell.row][cell.col].status = this._data[cell.row][cell.col].value;
-    // };
-    //
-    // this.showEmptyCell = (cell) => {
-    //     if(cell.status !== 0 && cell.row >= 0 && cell.row < this.settings.rows && cell.col >= 0 && cell.col < this.settings.cols){
-    //         this._data[cell.row][cell.col].status = this._data[cell.row][cell.col].value;
-    //         this.showEmptyCell()
-    //     }
-    // };
+    /**
+     * Изменения статуса ячейки в открытый режим
+     * Если значение ячейки равно нулю - соседние ячейки переводятся в открытый режим
+     * @param cell
+     */
+    this.showEmptyCells = (cell) => {
+        let offset = this.settings.nearbyOffset;
+        this._data[cell.row][cell.col].status = this._data[cell.row][cell.col].value;
+        if(this._data[cell.row][cell.col].value === 0){
+            for(let i = 0; i < offset.length; i++){
+                this.showNearbyCell({'row': cell.row + offset[i][0],'col': cell.col + offset[i][1]});
+            }
+        }
+    };
+
+    /**
+     * Проверка существования ячейки и изменение ее статуса в открытый режим
+     * Если значение ячейки равно нулю и она еще не открыта, рекурсивно вызывается пересчет соседних ячеек
+     * @param cell
+     */
+    this.showNearbyCell = (cell) => {
+        if(cell.row >= 0 && cell.row < this.settings.rows && cell.col >= 0 && cell.col < this.settings.cols){
+           if(this._data[cell.row][cell.col].value !== 0){
+               this._data[cell.row][cell.col].status = this._data[cell.row][cell.col].value;
+           }else if(this._data[cell.row][cell.col].status !== this._data[cell.row][cell.col].value){
+               this.showEmptyCells(cell);
+           }
+        }
+    };
 
     /**
      * Отрисовка канваса
@@ -179,12 +253,21 @@ let layout = function (settings) {
      */
     this.leftClick = (cell) => {
        if(this._data[cell.row][cell.col].value === 9){
-           alert('BOOM!!');
+           for(let i = 0; i < this.settings.rows; i++){
+               for(let j = 0; j < this.settings.cols; j++){
+                   if(this._data[i][j].status !== 11){
+                       this._data[i][j].status = this._data[i][j].value;
+                   }
+               }
+           }
+
+           this._data[cell.row][cell.col].status = 13;
+           this.drawingCanvas();
        }
-       // else if(this._data[cell.row][cell.col].value === 0){
-       //     this.showEmptyCells(this._data[cell.row][cell.col]);
-       //     this.drawingCanvas();
-       // }
+       else if(this._data[cell.row][cell.col].value === 0){
+           this.showEmptyCells(cell);
+           this.drawingCanvas();
+       }
        else{
            this._data[cell.row][cell.col].status = this._data[cell.row][cell.col].value;
        }
@@ -195,9 +278,9 @@ let layout = function (settings) {
      * @param cell
      */
     this.rightClick = (cell) => {
-        if(this._data[cell.row][cell.col].status === 9){
-            this._data[cell.row][cell.col].status = 11;
-        }else if(this._data[cell.row][cell.col].status > 9){
+        if(this._data[cell.row][cell.col].status === 10){
+            this._data[cell.row][cell.col].status = 12;
+        }else if(this._data[cell.row][cell.col].status > 10){
             this._data[cell.row][cell.col].status--;
         }
     };
@@ -228,36 +311,9 @@ let layout = function (settings) {
  * Объект ячейки
  */
 let cellTemplate = function () {
-    this.status = 11;
+    this.status = 12;
     this.value = 0
 };
 
-/**
- * Инициализация поля
- */
-window.onload = () => {
-    let screen = new layout(settings.canvas);
 
-    screen.generate();
-    screen.drawingCanvas();
-    screen.settings.canvas.oncontextmenu = () => false;
-
-    screen.settings.canvas.onmousedown = (e) => {
-        let coordinates = {
-            'x': e.pageX - screen.settings.canvas.offsetLeft,
-            'y': e.pageY - screen.settings.canvas.offsetTop,
-        };
-        let mouseButton = +e.button;
-
-        let cell = screen.getCellFromCoordinates(coordinates);
-
-        if (mouseButton === settings.mouse.leftClick) {
-            screen.leftClick(cell);
-        } else if (mouseButton === settings.mouse.rightClick) {
-            screen.rightClick(cell);
-        }
-        let ctx = screen.settings.canvas.getContext('2d');
-        screen.drawCell(cell.row, cell.col, ctx );
-    };
-};
 
