@@ -9,27 +9,42 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-    <title>sapper</title>
+    <title>Minesweeper</title>
 </head>
 <body>
 <div class="container">
     <div class="row">
         <div class="col text-center">
-            <h1>Сапер</h1>
+            <h1>Minesweeper</h1>
         </div>
     </div>
     <div class="row">
         <div class="col">
+            <label>Rows</label>
             <input type="number" class="form-control" id="rows" value="15">
         </div>
         <div class="col">
+            <label>Cols</label>
             <input type="number" class="form-control" id="cols" value="15">
         </div>
         <div class="col">
+            <label>Bombs</label>
             <input type="number" class="form-control" id="bombs" value="50">
         </div>
+
+        <div class="col">
+            <label>View</label>
+            <select type="number" class="form-control" id="sprite">
+                <option value="1">Blue</option>
+                <option value="2">Standart</option>
+                <option selected="selected" value="3">Gray</option>
+            </select>   
+        </div>
+    </div>
+    <br>
+    <div class="row">
         <div class="col d-flex justify-content-end">
-            <button type="button" class="btn btn-primary" id="changeOptions">Применить</button>
+            <button type="button" class="btn btn-primary" id="changeOptions">Start</button>
         </div>
     </div>
     <div class="row">

@@ -31,12 +31,14 @@ window.onload = () => {
         let rows = +document.getElementById('rows').value;
         let cols = +document.getElementById('cols').value;
         let bombs = +document.getElementById('bombs').value;
+        let sprite = +document.getElementById('sprite').value;
 
         if(rows*cols > bombs){
             screen.changeDefaultOptions({
                 'rows': rows,
                 'cols': cols,
                 'bombs': bombs,
+                'sprite': sprite
             });
             screen.generate();
             screen.drawingCanvas();
@@ -54,11 +56,72 @@ let settings = {
         'bombs': 50,
         'cw': 50,
         'ch': 50,
+        'sprite': '3'
     },
     'mouse': {
         'rightClick': 2,
         'leftClick': 0,
     }
+};
+
+let sprites = {
+    '1': { 
+        'image': 'sprite1.png', 
+        'data': [
+            {'sx': 2, 'sy': 2, 'sWidth': 30, 'sHeight': 29, },   // 0 - 0
+            {'sx': 34, 'sy': 2, 'sWidth': 30, 'sHeight': 29, },  // 1 - 1
+            {'sx': 66, 'sy': 2, 'sWidth': 30, 'sHeight': 29, },  // 2 - 2
+            {'sx': 98, 'sy': 2, 'sWidth': 30, 'sHeight': 29, },  // 3 - 3
+            {'sx': 130, 'sy': 2, 'sWidth': 31, 'sHeight': 29, }, // 4 - 4
+            {'sx': 2, 'sy': 34, 'sWidth': 30, 'sHeight': 29, },  // 5 - 5
+            {'sx': 34, 'sy': 34, 'sWidth': 30, 'sHeight': 29, }, // 6 - 6
+            {'sx': 66, 'sy': 34, 'sWidth': 30, 'sHeight': 29, }, // 7 - 7
+            {'sx': 98, 'sy': 34, 'sWidth': 30, 'sHeight': 29, }, // 8 - 8
+            {'sx': 98, 'sy': 64, 'sWidth': 27, 'sHeight': 28, }, // 9 - bomb
+            {'sx': 66, 'sy': 64, 'sWidth': 27, 'sHeight': 28, }, // 10 - question
+            {'sx': 2, 'sy': 64, 'sWidth': 27, 'sHeight': 28, },  // 11 - flag
+            {'sx': 130, 'sy': 32, 'sWidth': 27, 'sHeight': 28, },// 12 - closed
+            {'sx': 34, 'sy': 64, 'sWidth': 27, 'sHeight': 28, }, // bomb explode
+        ]
+    },
+    '2': { 
+        'image': 'sprite2.png', 
+        'data': [
+            {'sx': 2, 'sy': 2, 'sWidth': 28, 'sHeight': 28, },   // 0 - 0
+            {'sx': 34, 'sy': 2, 'sWidth': 28, 'sHeight': 28, },  // 1 - 1
+            {'sx': 66, 'sy': 2, 'sWidth': 28, 'sHeight': 28, },  // 2 - 2
+            {'sx': 98, 'sy': 2, 'sWidth': 28, 'sHeight': 28, },  // 3 - 3
+            {'sx': 2, 'sy': 34, 'sWidth': 28, 'sHeight': 28, }, // 4 - 4
+            {'sx': 34, 'sy': 34, 'sWidth': 28, 'sHeight': 28, },  // 5 - 5
+            {'sx': 66, 'sy': 34, 'sWidth': 28, 'sHeight': 28, }, // 6 - 6
+            {'sx': 98, 'sy': 34, 'sWidth': 28, 'sHeight': 28, }, // 7 - 7
+            {'sx': 2, 'sy': 66, 'sWidth': 28, 'sHeight': 28, }, // 8 - 8
+            {'sx': 67, 'sy': 67, 'sWidth': 28, 'sHeight': 29, }, // 9 - bomb
+            {'sx': 34, 'sy': 98, 'sWidth': 27, 'sHeight': 28, }, // 10 - question
+            {'sx': 98, 'sy': 66, 'sWidth': 27, 'sHeight': 28, },  // 11 - flag
+            {'sx': 34, 'sy': 66, 'sWidth': 27, 'sHeight': 28, },// 12 - closed
+            {'sx': 2, 'sy': 98, 'sWidth': 27, 'sHeight': 28, }, // bomb explode
+        ]
+    },
+    '3': { 
+        'image': 'sprite3.png', 
+        'data':  [
+            {'sx': 1538, 'sy': 1024, 'sWidth': 500, 'sHeight': 500, },   // 0 - 0
+            {'sx': 2, 'sy': 1536, 'sWidth': 500, 'sHeight': 500, },  // 1 - 1
+            {'sx': 514, 'sy': 1536, 'sWidth': 500, 'sHeight': 500, },  // 2 - 2
+            {'sx': 1026, 'sy': 1536, 'sWidth': 500, 'sHeight': 500, },  // 3 - 3
+            {'sx': 1538, 'sy': 1536, 'sWidth': 500, 'sHeight': 500, }, // 4 - 4
+            {'sx': 2, 'sy': 2048, 'sWidth': 500, 'sHeight': 500, },  // 5 - 5
+            {'sx': 514, 'sy': 2048, 'sWidth': 500, 'sHeight': 500, }, // 6 - 6
+            {'sx': 1026, 'sy': 2048, 'sWidth': 500, 'sHeight': 500, }, // 7 - 7
+            {'sx': 1538, 'sy': 2048, 'sWidth': 500, 'sHeight': 500, }, // 8 - 8
+            {'sx': 2, 'sy': 1024, 'sWidth': 500, 'sHeight': 500, }, // 9 - bomb
+            {'sx': 512, 'sy': 512, 'sWidth': 500, 'sHeight': 500, }, // 10 - question
+            {'sx': 0, 'sy': 512, 'sWidth': 500, 'sHeight': 500, },  // 11 - flag
+            {'sx': 0, 'sy': 0, 'sWidth': 500, 'sHeight': 500, },// 12 - closed
+            {'sx': 513, 'sy': 1024, 'sWidth': 500, 'sHeight': 500, }, // bomb explode
+        ]
+    }         
 };
 
 /**
@@ -85,24 +148,8 @@ let layout = function (settings) {
         'canvasHeight': settings.rows * settings.ch,
         'canvas': document.getElementById('canvas'),
         'canvasImage': new Image(),
-        'canvasImageSrc': 'sprite.png',
-        'sprite': [
-            {'sx': 2, 'sy': 2, 'sWidth': 30, 'sHeight': 30, },   // 0 - 0
-            {'sx': 34, 'sy': 2, 'sWidth': 30, 'sHeight': 30, },  // 1 - 1
-            {'sx': 66, 'sy': 2, 'sWidth': 30, 'sHeight': 30, },  // 2 - 2
-            {'sx': 98, 'sy': 2, 'sWidth': 30, 'sHeight': 30, },  // 3 - 3
-            {'sx': 130, 'sy': 2, 'sWidth': 30, 'sHeight': 30, }, // 4 - 4
-            {'sx': 2, 'sy': 34, 'sWidth': 30, 'sHeight': 30, },  // 5 - 5
-            {'sx': 34, 'sy': 34, 'sWidth': 30, 'sHeight': 30, }, // 6 - 6
-            {'sx': 66, 'sy': 34, 'sWidth': 30, 'sHeight': 30, }, // 7 - 7
-            {'sx': 98, 'sy': 34, 'sWidth': 30, 'sHeight': 30, }, // 8 - 8
-            {'sx': 98, 'sy': 64, 'sWidth': 27, 'sHeight': 28, }, // 9 - bomb
-            {'sx': 66, 'sy': 64, 'sWidth': 27, 'sHeight': 28, }, // 10 - question
-            {'sx': 2, 'sy': 64, 'sWidth': 27, 'sHeight': 28, },  // 11 - flag
-            {'sx': 130, 'sy': 32, 'sWidth': 27, 'sHeight': 28, },// 12 - closed
-
-            {'sx': 34, 'sy': 64, 'sWidth': 27, 'sHeight': 28, }, // bomb explode
-        ],
+        'canvasImageSrc': sprites[settings.sprite].image,
+        'sprite': sprites[settings.sprite].data,
     };
     this._data = [];
 
@@ -111,9 +158,12 @@ let layout = function (settings) {
      * @param options
      */
     this.changeDefaultOptions = (options) => {
-        this.settings.rows = options.rows ? options.rows : settings.rows;
-        this.settings.cols = options.cols ? options.cols : settings.cols;
-        this.settings.bombs = options.bombs ? options.bombs : settings.bombs;
+        this.settings.rows = Math.min(options.rows ? options.rows : settings.rows, 50);
+        this.settings.cols = Math.min(options.cols ? options.cols : settings.cols, 50);
+        this.settings.bombs = Math.min(options.bombs ? options.bombs : settings.bombs, this.settings.rows * this.settings.cols);
+        sprite = options.sprite && (options.sprite == 1 || options.sprite == 2 || options.sprite == 3) ? options.sprite : settings.sprite;
+        this.settings.canvasImageSrc = sprites[sprite].image,
+        this.settings.sprite = sprites[sprite].data,
         this.settings.canvasWidth = options.cols * this.settings.cw;
         this.settings.canvasHeight = options.rows * this.settings.ch;
     };
